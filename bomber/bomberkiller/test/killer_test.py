@@ -1,0 +1,2 @@
+class KillerTest:
+    pass
