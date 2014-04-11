@@ -2,6 +2,7 @@ __author__ = 'frealgagu'
 
 from bomberkiller import BomberKiller
 from sys import argv
+from time import sleep
 
 if __name__ == "__main__":
 
@@ -18,10 +19,11 @@ if __name__ == "__main__":
         token = argv[4]
     else:
         host = "172.16.0.3"
+        host = "192.168.243.245"
         port = 5000
-        number = 5
+        number = 0
         if number == 0:
-            username = BomberKiller
+            username = "BomberKiller"
             token = "532c9405cffad45921000001"
         elif number == 1:
             username = "uno"
@@ -39,5 +41,9 @@ if __name__ == "__main__":
             username = "frealgagu"
             token = "5340d6f7ef66227907000228"
 
-    bomberKiller = BomberKiller(host, port, username, token)
-    bomberKiller.run()
+    while True:
+        bomberKiller = BomberKiller(host, port, username, token)
+        bomberKiller.run()
+        print "Esperando 5 segundos para volver a empezar..."
+        sleep(5)
+        print "Empezando de nuevo."
