@@ -1,6 +1,5 @@
 __author__ = 'Fredy Garcia, Carol Bohorquez'
 
-import unittest
 from pymock.pymock import PyMockTestCase
 
 
@@ -18,7 +17,7 @@ class TestKillerMock(PyMockTestCase):
         self.verify()
 
 
-class TestKiller(unittest.TestCase):
+class TestKiller(PyMockTestCase):
     def set_up(self):
         self.seq = range(10)
 

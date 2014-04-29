@@ -4,10 +4,13 @@ from bomberkiller.connection.connection import Connection
 from pymock.pymock import PyMockTestCase
 
 
-class ConnectionTest(PyMockTestCase):
+class TestConnection(PyMockTestCase):
+
+    def __init__(self, method_name=None):
+        super(TestConnection, self).__init__(method_name)
 
     def setUp(self):
-        super(ConnectionTest, self).setUp()
+        super(TestConnection, self).setUp()
         self.true_connection = Connection()
         self.fake_connection = self.mock()
         self.fake_connection.connect("Something", 12345)
@@ -18,7 +21,8 @@ class ConnectionTest(PyMockTestCase):
         self.replay()
 
     def tearDown(self):
-        super(ConnectionTest, self).tearDown()
+        super(TestConnection, self).tearDown()
+        pass
 
     def test_connect(self):
         try:
