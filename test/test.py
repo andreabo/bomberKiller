@@ -22,6 +22,9 @@ class TestKiller(unittest.TestCase):
     def set_up(self):
         self.seq = range(10)
 
+    def test_something(self):
+        pass
+
     # def test_shuffle(self):
     #
     #     # make sure the shuffled sequence does not lose any elements

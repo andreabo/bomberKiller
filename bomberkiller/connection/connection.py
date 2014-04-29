@@ -20,7 +20,7 @@ class Connection:
 
         # Reads until user and token request
         message = ""
-        while message.find('Ingrese usuario y token:') == -1:
+        while message.find("Ingrese usuario y token:") == -1:
             message = message + self.client.recv(2048)
 
         # Prints server welcome message

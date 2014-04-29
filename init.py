@@ -19,9 +19,9 @@ if __name__ == "__main__":
         token = argv[4]
     else:
         host = "172.16.0.3"
-        host = "192.168.243.245"
+        # host = "192.168.243.245"
         port = 5000
-        number = 0
+        number = 4
         if number == 0:
             username = "BomberKiller"
             token = "532c9405cffad45921000001"
@@ -41,8 +41,8 @@ if __name__ == "__main__":
             username = "frealgagu"
             token = "5340d6f7ef66227907000228"
 
-    while True:
-        bomberKiller = BomberKiller(host, port, username, token)
+    bomberKiller = BomberKiller(host, port, username, token)
+    while bomberKiller.executing:
         bomberKiller.run()
         print "Esperando 5 segundos para volver a empezar..."
         sleep(5)

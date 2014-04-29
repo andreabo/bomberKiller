@@ -15,6 +15,7 @@ class BomberKiller(object):
         self.connection = Connection()
         self.game = Game()
         self.playing = True
+        self.executing = True
 
     def run(self):
         while self.playing:
@@ -24,6 +25,7 @@ class BomberKiller(object):
                 self.play()
             except KeyboardInterrupt:
                 self.playing = False
+                self.executing = False
             except IOError as e:
                 print e
                 self.playing = True

@@ -1,53 +1,93 @@
 __author__ = 'Fredy Garcia, Carol Bohorquez'
 
-import unittest
-from bomberkiller.connection import Connection
+from bomberkiller.connection.connection import Connection
+from pymock.pymock import PyMockTestCase
 
 
-class ConnectionTest(unittest.TestCase):
+class ConnectionTest(PyMockTestCase):
 
     def setUp(self):
-        self.connection = Connection()
+        super(ConnectionTest, self).setUp()
+        self.true_connection = Connection()
+        self.fake_connection = self.mock()
+        self.fake_connection.connect("Something", 12345)
+        self.fake_connection.login("Username", "Token")
+        self.fake_connection.disconnect()
+        self.expectAndReturn(self.fake_connection.read_message(), "Ingrese usuario y token:")
+        self.fake_connection.write_message("Test Message")
+        self.replay()
+
+    def tearDown(self):
+        super(ConnectionTest, self).tearDown()
 
     def test_connect(self):
         try:
-            self.connection.connect("NoHost", 12345)
+            self.true_connection.connect("NoHost", 12345)
             self.fail("Connection should not have been achieved")
         except IOError:
             pass
         finally:
-            self.connection.disconnect()
+            self.true_connection.disconnect()
+
+        try:
+            self.fake_connection.connect("Something", 12345)
+        except IOError as e:
+            self.fail("IOError: " % e)
+        finally:
+            pass
 
     def test_login(self):
         try:
-            self.connection.login("NoUsername", "NoToken")
+            self.true_connection.login("NoUsername", "NoToken")
             self.fail("Login should not have been achieved")
         except IOError:
             pass
         finally:
-            self.connection.disconnect()
+            self.true_connection.disconnect()
+
+        try:
+            self.fake_connection.login("Username", "Token")
+        except IOError as e:
+            self.fail("IOError: " % e)
+        finally:
+            self.fake_connection.disconnect()
 
     def test_disconnect(self):
-        self.connection.connected = False
-        self.connection.disconnect()
+        self.true_connection.connected = False
+        self.true_connection.disconnect()
 
-        self.connection.connected = True
-        self.connection.disconnect()
+        self.true_connection.connected = True
+        self.true_connection.disconnect()
 
     def test_read_message(self):
         try:
-            message = self.connection.read_message()
+            message = self.true_connection.read_message()
             self.fail("Read message should not have been achieved, message: %s " % message)
         except IOError:
             pass
         finally:
-            self.connection.disconnect()
+            self.true_connection.disconnect()
+
+        try:
+            message = self.fake_connection.read_message()
+            self.assertEqual(message, "Ingrese usuario y token:")
+        except IOError as e:
+            self.fail("IOError: " % e)
+        finally:
+            self.fake_connection.disconnect()
 
     def test_write_message(self):
         try:
-            self.connection.write_message("Test Message")
+            self.true_connection.write_message("Test Message")
             self.fail("Write message should not have been achieved")
         except IOError:
             pass
         finally:
-            self.connection.disconnect()
+            self.true_connection.disconnect()
+
+        try:
+            self.fake_connection.write_message("Test Message")
+        except IOError as e:
+            self.fail("IOError: " % e)
+        finally:
+            self.fake_connection.disconnect()
