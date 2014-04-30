@@ -33,12 +33,12 @@ class Board:
     def retrieve_contiguous_elements(self, element_base):
         elements = []
         directions = \
-            {
+            [
                 Action.EAST,
                 Action.WEST,
                 Action.NORTH,
                 Action.SOUTH
-            }
+            ]
         for direction in directions:
             cell = self.retrieve_element(element_base, direction)
             if cell is not None:
