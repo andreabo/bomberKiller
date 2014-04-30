@@ -7,7 +7,10 @@ from bomberkiller.game.turn import Turn
 
 class BomberKiller(object):
 
+    MAX_WRONG_MESSAGES_NUMBER = 500
+
     def __init__(self, host, port, username, token):
+        self.max_wrong_messages_number = self.MAX_WRONG_MESSAGES_NUMBER
         self.host = host
         self.port = port
         self.username = username
@@ -39,6 +42,7 @@ class BomberKiller(object):
 
         while self.playing:
             message = self.connection.read_message()
+            print message
 
             if message[0] == Turn.START:
                 map_ = message[1]
@@ -62,11 +66,12 @@ class BomberKiller(object):
 
                 wrong_messages_number = 0
 
-            elif message[0].find(Turn.ALREADY_CONNECTED):
+            elif message[0].find(Turn.ALREADY_CONNECTED) >= 0:
                 self.game.already_connected()
                 self.playing = False
+
             else:
                 wrong_messages_number += 1
-                if wrong_messages_number >= 500:
+                if wrong_messages_number > self.max_wrong_messages_number:
                     self.game.wrong_messages(wrong_messages_number)
                     self.playing = False

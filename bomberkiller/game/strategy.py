@@ -8,6 +8,7 @@ from random import Random
 
 
 class Strategy(object):
+
     def __init__(self, player_character):
         self.player_character = player_character
         self.rules = Rules()

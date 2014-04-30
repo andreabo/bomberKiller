@@ -18,6 +18,8 @@ class TestConnection(TestCase):
 
     def tearDown(self):
         super(TestConnection, self).tearDown()
+
+    def test_connection(self):
         pass
 
     def test_connect(self):

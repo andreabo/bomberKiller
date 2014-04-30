@@ -12,6 +12,7 @@ class TestBoard(TestCase):
         super(TestBoard, self).__init__(method_name)
 
     def setUp(self):
+        super(TestBoard, self).setUp()
         self.board = Board()
         self.board.elements = []
         for i in range(0, 9):
@@ -19,6 +20,12 @@ class TestBoard(TestCase):
             for j in range(0, 9):
                 row_elements.append(Element(Element.EMPTY_SPACE, i, j))
             self.board.elements.append(row_elements)
+
+    def tearDown(self):
+        super(TestBoard, self).tearDown()
+
+    def test_board(self):
+        pass
 
     def test_retrieve_element_by_position(self):
         element = Element(Element.BREAKABLE_WALL, 6, 4)

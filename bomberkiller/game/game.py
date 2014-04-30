@@ -1,4 +1,4 @@
-__author__ = 'frealgagu'
+__author__ = 'Fredy Garcia, Carol Bohorquez'
 
 from bomberkiller.game.strategy import Strategy
 from bomberkiller.game.action import Action

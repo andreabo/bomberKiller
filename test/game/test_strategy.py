@@ -1,23 +1,21 @@
-__author__ = 'frealgagu'
+__author__ = 'Fredy Garcia, Carol Bohorquez'
 
-import unittest
+from unittest import TestCase
+from bomberkiller.game.strategy import Strategy
+from bomberkiller.elements.element import Element
 
 
-class StrategyTest(unittest.TestCase):
+class TestStrategy(TestCase):
 
-    def test_move_or_put_a_bomb(self):
+    def __init__(self, method_name=None):
+        super(TestStrategy, self).__init__(method_name)
+
+    def setUp(self):
+        super(TestStrategy, self).setUp()
+        self.strategy = Strategy(Element.PLAYER_A)
+
+    def tearDown(self):
+        super(TestStrategy, self).tearDown()
+
+    def test_strategy(self):
         pass
-
-# Poderes: {'A': 2, 'C': 1, 'B': 1, 'D': 1} . {'A': 1, 'C': 1, 'B': 2, 'D': 1}
-# Mapa actual:
-# | X.X.X.X.X.X.X.X.X.X.X |
-# | X. . . . .*.A.2.*.*.X |
-# | X. .X.W.X. .X.W.X.B.X |
-# | X. .W.W.W.C.W.W.W.$.X |
-# | X. .X. .X. .X. .X.1.X |
-# | X. . . . . . . .D.$.X |
-# | X. .X. .X. .X. .X. .X |
-# | X. .W.W.W. .W.W. . .X |
-# | X. .X.W.X. .X.W.X. .X |
-# | X. . .W. . . .W. . .X |
-# | X.X.X.X.X.X.X.X.X.X.X |

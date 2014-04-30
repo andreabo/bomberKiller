@@ -1,60 +1,108 @@
 __author__ = 'Fredy Garcia, Carol Bohorquez'
 
-from pymock.pymock import PyMockTestCase
+import socket
+from unittest import TestCase
+from pymock.pymock import Controller
+from bomberkiller.killer import BomberKiller
+from bomberkiller.game.turn import Turn
+from bomberkiller.game.action import Action
 
 
-class TestKillerMock(PyMockTestCase):
+class TestKiller(TestCase):
+    def __init__(self, method_name=None):
+        super(TestKiller, self).__init__(method_name)
 
-    def test_method(self):
-        m = self.mock()
-        self.expectAndReturn(m.getSomething("And"), 3)
-        self.expectAndReturn(m.getSomething("Or"), 5)
-        self.replay()
-        #self.failUnless(m.getSomething("And") == 3)
-        print m.getSomething("And")
-        print m.getSomething("Or")
-        #print m.getSomething("Otherwise")
-        self.verify()
+    def setUp(self):
+        super(TestKiller, self).setUp()
+        self.controller = Controller()
+        self.killer = BomberKiller("Something", 12345, "Username", "Token")
 
+    def tearDown(self):
+        super(TestKiller, self).tearDown()
 
-class TestKiller(PyMockTestCase):
-    def set_up(self):
-        self.seq = range(10)
-
-    def test_something(self):
+    def test_killer(self):
         pass
 
-    # def test_shuffle(self):
-    #
-    #     # make sure the shuffled sequence does not lose any elements
-    #     random.shuffle(self.seq)
-    #     self.seq.sort()
-    #     self.assertEqual(self.seq, range(10))
-    #
-    #     # should raise an exception for an immutable sequence
-    #     self.assertRaises(TypeError, random.shuffle, (1, 2, 3))
-    #
-    # def test_choice(self):
-    #     element = random.choice(self.seq)
-    #     self.assertTrue(element in self.seq)
-    #
-    # def test_sample(self):
-    #     with self.assertRaises(ValueError):
-    #         random.sample(self.seq, 20)
-    #     for element in random.sample(self.seq, 5):
-    #         self.assertTrue(element in self.seq)
+    def test_run(self):
+        self.killer.connection.client = self.controller.mock()
+        self.killer.playing = True
+        self.controller.expects(self.killer.connection.client.connect(("Something", 12345)))
+        self.controller.expectAndReturn(self.killer.connection.client.recv(2048), "Ingrese usuario y token:")
+        self.controller.expectAndReturn(self.killer.connection.client.recv(1024), "Usuario ya esta conectado")
+        self.controller.expects(self.killer.connection.client.send("%s,%s" % ("Username", "Token")))
+        self.controller.expects(self.killer.connection.client.shutdown(socket.SHUT_RDWR))
+        self.controller.expects(self.killer.connection.client.close())
+        self.controller.replay()
 
-if __name__ == '__main__':
-    unittest.main()
+        self.killer.run()
 
-#| X,X,X,X,X,X,X,X,X,X,X |
-#| X,_,_,_,_,_,_,_,_,_,X |
-#| X,_,X,L,X,_,X,L,X,_,X |
-#| X,_,L,D,_,_,_,L,L,L,X |
-#| X,_,X,_,X,_,X,_,X,_,X |
-#| X,_,_,_,_,_,_,_,_,_,X |
-#| X,_,X,_,X,_,X,_,X,_,X |
-#| X,_,L,L,_,_,_,_,L,_,X |
-#| X,_,X,L,X,_,X,L,X,_,X |
-#| X,_,_,L,_,_,_,L,_,_,X |
-#| X,X,X,X,X,X,X,X,X,X,X |
+        self.controller.reset()
+        self.killer.connection.client = self.controller.mock()
+        self.killer.playing = True
+        self.controller.expects(self.killer.connection.client.connect(("Something", 12345)))
+        self.controller.expectAndReturn(self.killer.connection.client.recv(2048), "Ingrese usuario y token:")
+        self.controller.expectAndRaise(self.killer.connection.client.recv(1024), KeyboardInterrupt("Stopping App"))
+        self.controller.expects(self.killer.connection.client.send("%s,%s" % ("Username", "Token")))
+        self.controller.expects(self.killer.connection.client.shutdown(socket.SHUT_RDWR))
+        self.controller.expects(self.killer.connection.client.close())
+        self.controller.replay()
+
+        self.killer.run()
+
+        self.controller.reset()
+        self.killer.connection.client = self.controller.mock()
+        self.killer.playing = True
+        self.controller.expects(self.killer.connection.client.connect(("Something", 12345)))
+        self.controller.expectAndReturn(self.killer.connection.client.recv(2048), "Ingrese usuario y token:")
+        self.controller.expectAndRaise(self.killer.connection.client.recv(1024), IOError("IO Error"))
+        self.controller.expects(self.killer.connection.client.send("%s,%s" % ("Username", "Token")))
+        self.controller.expects(self.killer.connection.client.shutdown(socket.SHUT_RDWR))
+        self.controller.expects(self.killer.connection.client.close())
+        self.controller.expects(self.killer.connection.client.connect(("Something", 12345)))
+        self.controller.expectAndReturn(self.killer.connection.client.recv(2048), "Ingrese usuario y token:")
+        self.controller.expectAndReturn(self.killer.connection.client.recv(1024), "Usuario ya esta conectado")
+        self.controller.expects(self.killer.connection.client.send("%s,%s" % ("Username", "Token")))
+        self.controller.expects(self.killer.connection.client.shutdown(socket.SHUT_RDWR))
+        self.controller.expects(self.killer.connection.client.close())
+        self.controller.replay()
+
+        self.killer.run()
+
+    def test_play(self):
+        self.killer.connection.client = self.controller.mock()
+        self.killer.max_wrong_messages_number = 3
+        self.controller.expectAndReturn(self.killer.connection.client.recv(1024), Turn.START + ";"
+                                                                                               "X,X,X,X,X,X,X,X,X,X,X\n"
+                                                                                               "X,_,_,_,_,_,_,_,_,_,X\n"
+                                                                                               "X,_,_,_,_,_,_,_,_,_,X\n"
+                                                                                               "X,_,_,_,_,_,_,_,_,_,X\n"
+                                                                                               "X,_,_,_,P,2,B,_,_,_,X\n"
+                                                                                               "X,_,_,_,2,A,2,_,_,_,X\n"
+                                                                                               "X,_,_,_,D,2,C,_,_,_,X\n"
+                                                                                               "X,_,_,_,_,_,_,_,_,_,X\n"
+                                                                                               "X,_,_,_,_,_,_,_,_,_,X\n"
+                                                                                               "X,_,_,_,_,_,_,_,_,_,X\n"
+                                                                                               "X,X,X,X,X,X,X,X,X,X,X"
+                                                                                               ";A")
+        self.controller.expects(self.killer.connection.client.send(Action.PASS))
+        self.controller.expectAndReturn(self.killer.connection.client.recv(1024), Turn.TURN + ";1;"
+                                                                                              "X,X,X,X,X,X,X,X,X,X,X\n"
+                                                                                              "X,_,_,_,_,_,_,_,_,_,X\n"
+                                                                                              "X,_,_,_,_,_,_,_,_,_,X\n"
+                                                                                              "X,_,_,_,_,_,_,_,_,_,X\n"
+                                                                                              "X,_,_,_,P,1,B,_,_,_,X\n"
+                                                                                              "X,_,_,_,1,A,1,_,_,_,X\n"
+                                                                                              "X,_,_,_,D,1,C,_,_,_,X\n"
+                                                                                              "X,_,_,_,_,_,_,_,_,_,X\n"
+                                                                                              "X,_,_,_,_,_,_,_,_,_,X\n"
+                                                                                              "X,_,_,_,_,_,_,_,_,_,X\n"
+                                                                                              "X,X,X,X,X,X,X,X,X,X,X")
+        self.controller.expects(self.killer.connection.client.send(Action.PASS))
+        self.controller.expectAndReturn(self.killer.connection.client.recv(1024), Turn.LOST)
+        self.controller.expectAndReturn(self.killer.connection.client.recv(1024), "Wrong Messages")
+        self.controller.expectAndReturn(self.killer.connection.client.recv(1024), "Wrong Messages")
+        self.controller.expectAndReturn(self.killer.connection.client.recv(1024), "Wrong Messages")
+        self.controller.expectAndReturn(self.killer.connection.client.recv(1024), "Wrong Messages")
+        self.controller.replay()
+
+        self.killer.play()

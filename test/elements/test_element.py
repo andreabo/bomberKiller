@@ -10,7 +10,14 @@ class TestElement(TestCase):
         super(TestElement, self).__init__(method_name)
 
     def setUp(self):
+        super(TestElement, self).setUp()
         self.element = Element(Element.EMPTY_SPACE, 0, 0)
+
+    def tearDown(self):
+        super(TestElement, self).tearDown()
+
+    def test_element(self):
+        pass
 
     def test_change_type(self):
         self.element.change_type(Element.FIRE_BOMB_POWER)
