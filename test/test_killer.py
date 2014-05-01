@@ -3,19 +3,20 @@ __author__ = 'Fredy Garcia, Carol Bohorquez'
 import socket
 from unittest import TestCase
 from pymock.pymock import Controller
-from bomberkiller.killer import BomberKiller
+from bomberkiller.killer import Killer
 from bomberkiller.game.turn import Turn
 from bomberkiller.game.action import Action
 
 
 class TestKiller(TestCase):
+
     def __init__(self, method_name=None):
         super(TestKiller, self).__init__(method_name)
 
     def setUp(self):
         super(TestKiller, self).setUp()
         self.controller = Controller()
-        self.killer = BomberKiller("Something", 12345, "Username", "Token")
+        self.killer = Killer("Something", 12345, "Username", "Token")
 
     def tearDown(self):
         super(TestKiller, self).tearDown()

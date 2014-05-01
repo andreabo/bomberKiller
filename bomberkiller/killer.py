@@ -5,7 +5,7 @@ from bomberkiller.game.game import Game
 from bomberkiller.game.turn import Turn
 
 
-class BomberKiller(object):
+class Killer(object):
 
     MAX_WRONG_MESSAGES_NUMBER = 500
 
