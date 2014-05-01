@@ -4,6 +4,7 @@ from sys import argv
 from time import sleep
 from bomberkiller.killer import Killer
 
+
 if __name__ == "__main__":
 
     host = None
@@ -45,7 +46,7 @@ if __name__ == "__main__":
     bomberKiller = Killer(host, port, username, token)
     bomberKiller.run()
     while bomberKiller.executing:
-        print "Esperando 5 segundos para volver a empezar..."
+        print ("Esperando 5 segundos para volver a empezar...")
         sleep(5)
-        print "Empezando de nuevo."
+        print ("Empezando de nuevo.")
         bomberKiller.run()
