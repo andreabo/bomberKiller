@@ -1,3 +1,4 @@
+#!/usr/bin/python
 __author__ = 'Fredy Garcia, Carol Bohorquez'
 
 from sys import argv

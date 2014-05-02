@@ -8,9 +8,17 @@ class Connection:
     DIVIDER = ";"
 
     def __init__(self):
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
-        self.connected = False
+        self.client_type = None
+        self.client = None
+        self.connected = None
+        self.define_client()
+
+    def define_client(self):
+        if self.client_type is None:
+            self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.client.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+        else:
+            self.client = self.client_type
 
     def connect(self, host, port):
         print "Conectando al servidor %s en el puerto %s ..." % (host, port)
@@ -43,6 +51,9 @@ class Connection:
                 print "No esta conectado al servidor"
         except IOError as e:
             print "Error desconectando del servidor: %s " % e
+        finally:
+            self.connected = False
+            self.define_client()
 
     def read_message(self):
         # Reads message from server

@@ -15,8 +15,9 @@ class Board:
         self.bombs = []
 
     def retrieve_element_by_position(self, x, y):
-        if 0 <= x <= 10 and 0 <= y <= 10:
-            return self.elements[y][x]
+        if 0 <= y < len(self.elements):
+            if 0 <= x < len(self.elements[y]):
+                return self.elements[y][x]
 
     def retrieve_element(self, element_base, action=None):
         if action == Action.EAST:

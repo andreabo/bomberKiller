@@ -21,6 +21,7 @@ class Killer(object):
         self.executing = True
 
     def run(self):
+        self.playing = True
         while self.playing:
             try:
                 self.connection.connect(self.host, self.port)

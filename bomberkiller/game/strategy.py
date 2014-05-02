@@ -16,6 +16,7 @@ class Strategy(object):
         self.previous_board = None
         self.board = None
         self.action = None
+        self.random = Random()
 
     # Compares two elements determining the move effort value
     @staticmethod
@@ -24,8 +25,14 @@ class Strategy(object):
 
     # Create the board according to received map
     def create_board(self, map_):
-        self.old_board = self.previous_board
-        self.previous_board = self.board
+        if self.previous_board is None:
+            self.old_board = Board()
+        else:
+            self.old_board = self.previous_board
+        if self.board is None:
+            self.previous_board = Board()
+        else:
+            self.previous_board = self.board
         self.board = Board()
         for y, line in enumerate(map_.split('\n')):
             row_elements = []
@@ -87,12 +94,13 @@ class Strategy(object):
                     # If cell is not outbound of board
                     if injured_element is not None:
                         # If this bomb are going to impact another bomb, then put most risky bomb type in each one
-                        # because two bombs explode at same time
-                        if injured_element.is_bomb():
-                            if bomb.type == Element.TIMER_1_LEFT_BOMB:
-                                injured_element.type = Element.TIMER_1_LEFT_BOMB
-                            if injured_element.type == Element.TIMER_1_LEFT_BOMB:
-                                bomb.type = Element.TIMER_1_LEFT_BOMB
+                        # because two bombs explode at same time (Changed: This affirmation is false for this server)
+                        # Remove comments only if this behavior changes
+                        # if injured_element.is_bomb():
+                            # if bomb.type == Element.TIMER_1_LEFT_BOMB:
+                                # injured_element.type = Element.TIMER_1_LEFT_BOMB
+                            # if injured_element.type == Element.TIMER_1_LEFT_BOMB:
+                                # bomb.type = Element.TIMER_1_LEFT_BOMB
                         # Put the most risky bomb in bomb threat
                         if injured_element.bomb_threat is None \
                                 or injured_element.bomb_threat.type == Element.TIMER_2_LEFT_BOMB:
@@ -162,7 +170,7 @@ class Strategy(object):
                     if action is not Action.PASS and decided_place.individual_effort <= 40:
                         objective_reasoning += "*Objetivo: %s, Accion: %s*" % (target.type, action)
                         break
-                # If an enemy or breakable wall is close to in our path, then try move away or put a bomb
+                # If an enemy or breakable wall is close to in our path, then try move away
                 elif next_place.is_player() or next_place.is_breakable_wall():
                     contiguous_elements = self.board.retrieve_contiguous_elements(self.board.bomber_killer)
                     for contiguous_element in contiguous_elements:
@@ -172,17 +180,17 @@ class Strategy(object):
                             objective_reasoning += "*Objetivo: %s, Accion: %s (Obstaculo)*" % (target.type, action)
                             break
 
-        # Ensure an action
+        # Avoid None action
         if action is None:
-            action = Action.PASS
-
-        # Avoid stay quiet
-        if action == Action.PASS:
             contiguous_elements = self.board.retrieve_contiguous_elements(self.board.bomber_killer)
             for contiguous_element in contiguous_elements:
                 if contiguous_element.is_possible_move_to() and self.predict_safety_after_move(contiguous_element):
                     action = self.move_to(contiguous_element)
                     objective_reasoning += "*Objetivo: Ninguno, Accion: %s*" % action
+
+        # Ensure an action
+        if action is None:
+            action = Action.PASS
 
         print objective_reasoning
 
@@ -248,33 +256,37 @@ class Strategy(object):
         else:
             action = Action.PASS
 
-        # Move to bomb range is dangerous but put a bomb there is even more dangerous
-        if not next_place.is_bomb_range():
-            # Verify the possibility to put a bomb only if bomber killer is not in immediate bomb range
-            if self.board.bomber_killer.individual_effort <= 40 and self.can_put_bomb():
+        # Move to bomb range is dangerous but put a bomb there is even more dangerous (Changed: if a bomb explode over
+        # other bomb, not a chain sequence is activated, the other bomb remains normal until it explodes, change if
+        # chain reaction is activated in the server)
+        # if not next_place.is_bomb_range():
+        # Verify the possibility to put a bomb only if is a space and bomber killer is not in immediate bomb range
+        if next_place.is_empty_space() and self.board.bomber_killer.individual_effort <= 40 and self.can_put_bomb():
 
-                # Predict if is possible escape after put a bomb
-                is_safe_put_a_bomb = self.predict_safety_after_put_a_bomb(next_place)
-
-                # If an enemy is 5 spaces, randomize a 25% for put a bomb
-                if is_safe_put_a_bomb and len(path) >= 5 and Random().random() < 0.25:
-                    if path[4].is_player():
-                        action = self.put_a_bomb_on(next_place)
-
-                # If an enemy is 4 spaces, randomize a 25% for put a bomb
-                if is_safe_put_a_bomb and len(path) >= 4 and Random().random() < 0.5:
-                    if path[3].is_player():
-                        action = self.put_a_bomb_on(next_place)
-
-                # If an enemy is 3 spaces, randomize a 50% for put a bomb
-                if is_safe_put_a_bomb and len(path) >= 3 and Random().random() < 0.75:
-                    if path[2].is_player():
-                        action = self.put_a_bomb_on(next_place)
+            # Predict if is possible escape after put a bomb
+            if self.predict_safety_after_put_a_bomb(next_place):
 
                 # If an enemy or a breakable wall is obstructing our target, put a bomb in front of
-                if is_safe_put_a_bomb and len(path) >= 2:
-                    if path[1].is_player() or path[1].is_breakable_wall():
-                        action = self.put_a_bomb_on(next_place)
+                if len(path) == 2 and self.random.random() < 1.0 \
+                        and (path[1].is_player() or path[1].is_breakable_wall()):
+                    action = self.put_a_bomb_on(next_place)
+
+                # If an enemy is 3 spaces, randomize a 80% for put a bomb
+                if len(path) == 3 and self.random.random() < 0.8 and path[2].is_player():
+                    action = self.put_a_bomb_on(next_place)
+
+                # If an enemy is 4 spaces, randomize a 60% for put a bomb
+                if len(path) == 4 and self.random.random() < 0.6 and path[3].is_player():
+                    action = self.put_a_bomb_on(next_place)
+
+                # If an enemy is 5 spaces, randomize a 40% for put a bomb
+                if len(path) == 5 and self.random.random() < 0.4 and path[4].is_player():
+                    action = self.put_a_bomb_on(next_place)
+
+                # If an enemy is 6 spaces, randomize a 20% for put a bomb
+                if len(path) >= 6 and self.random.random() < 0.2 and path[5].is_player():
+                    action = self.put_a_bomb_on(next_place)
+
         return action
 
     def move_to(self, next_element):
@@ -283,17 +295,12 @@ class Strategy(object):
                 return Action.EAST
             elif next_element.x < self.board.bomber_killer.x:
                 return Action.WEST
-            else:
-                return Action.PASS
-        elif next_element.x == self.board.bomber_killer.x:
+        if next_element.x == self.board.bomber_killer.x:
             if next_element.y < self.board.bomber_killer.y:
                 return Action.NORTH
             elif next_element.y > self.board.bomber_killer.y:
                 return Action.SOUTH
-            else:
-                return Action.PASS
-        else:
-            return Action.PASS
+        return Action.PASS
 
     def put_a_bomb_on(self, next_element):
         if next_element.y == self.board.bomber_killer.y:
@@ -301,17 +308,12 @@ class Strategy(object):
                 return Action.BOMB_EAST
             elif next_element.x < self.board.bomber_killer.x:
                 return Action.BOMB_WEST
-            else:
-                return Action.PASS
         elif next_element.x == self.board.bomber_killer.x:
             if next_element.y < self.board.bomber_killer.y:
                 return Action.BOMB_NORTH
             elif next_element.y > self.board.bomber_killer.y:
                 return Action.BOMB_SOUTH
-            else:
-                return Action.PASS
-        else:
-            return Action.PASS
+        return Action.PASS
 
     def retrieve_possible_put_players(self, bomb):
         possible_players = []
@@ -324,11 +326,6 @@ class Strategy(object):
                 for element in self.previous_board.retrieve_contiguous_elements(bomb):
                     if element.is_alive_player():
                         possible_players.append(element)
-            else:
-                print "Who put that bomb? : %s" % bomb
-                for player in self.board.retrieve_contiguous_elements(bomb):
-                    possible_players.append(player)
-                possible_players.append(self.board.bomber_killer)
         return possible_players
 
     def can_put_bomb(self):
