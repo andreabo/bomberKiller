@@ -102,15 +102,19 @@ class Strategy(object):
                             # if injured_element.type == Element.TIMER_1_LEFT_BOMB:
                                 # bomb.type = Element.TIMER_1_LEFT_BOMB
                         # Put the most risky bomb in bomb threat
-                        if injured_element.bomb_threat is None \
-                                or injured_element.bomb_threat.type == Element.TIMER_2_LEFT_BOMB:
+                        if injured_element.bomb_threat is None:
                             injured_element.bomb_threat = bomb
+                        elif injured_element.bomb_threat.type == Element.TIMER_2_LEFT_BOMB:
+                            # This is useful for add just the new threat
+                            injured_element.reset_individual_effort()
                         # The flame cannot advance over walls
                         if injured_element.is_wall():
                             directions[direction] = False
                         # Increase the cell effort with bomb effort, but decreases a bit in the measure as bot run
                         # away from the bomb in order to avoid the bomb flame if any other way is possible
-                        injured_element.increase_effort(bomb.individual_effort - magnitude)
+                        # If injured element is a bomb, then the effort must not be changed
+                        if not injured_element.is_bomb():
+                            injured_element.increase_effort(bomb.individual_effort - magnitude)
 
                     magnitude += 1
 
@@ -266,27 +270,26 @@ class Strategy(object):
             # Predict if is possible escape after put a bomb
             if self.predict_safety_after_put_a_bomb(next_place):
 
-                # If an enemy or a breakable wall is obstructing our target, put a bomb in front of
-                if len(path) == 2 and self.random.random() < 1.0 \
-                        and (path[1].is_player() or path[1].is_breakable_wall()):
-                    action = self.put_a_bomb_on(next_place)
-
-                # If an enemy is 3 spaces, randomize a 80% for put a bomb
-                if len(path) == 3 and self.random.random() < 0.8 and path[2].is_player():
-                    action = self.put_a_bomb_on(next_place)
-
-                # If an enemy is 4 spaces, randomize a 60% for put a bomb
-                if len(path) == 4 and self.random.random() < 0.6 and path[3].is_player():
-                    action = self.put_a_bomb_on(next_place)
-
-                # If an enemy is 5 spaces, randomize a 40% for put a bomb
-                if len(path) == 5 and self.random.random() < 0.4 and path[4].is_player():
-                    action = self.put_a_bomb_on(next_place)
-
                 # If an enemy is 6 spaces, randomize a 20% for put a bomb
                 if len(path) >= 6 and self.random.random() < 0.2 and path[5].is_player():
                     action = self.put_a_bomb_on(next_place)
 
+                # If an enemy is 5 spaces, randomize a 40% for put a bomb
+                if len(path) >= 5 and self.random.random() < 0.4 and path[4].is_player():
+                    action = self.put_a_bomb_on(next_place)
+
+                # If an enemy is 4 spaces, randomize a 60% for put a bomb
+                if len(path) >= 4 and self.random.random() < 0.6 and path[3].is_player():
+                    action = self.put_a_bomb_on(next_place)
+
+                # If an enemy is 3 spaces, randomize a 80% for put a bomb
+                if len(path) >= 3 and self.random.random() < 0.8 and path[2].is_player():
+                    action = self.put_a_bomb_on(next_place)
+
+                # If an enemy or a breakable wall is obstructing our target, put a bomb in front of
+                if len(path) >= 2 and self.random.random() < 1.0 \
+                        and (path[1].is_player() or path[1].is_breakable_wall()):
+                    action = self.put_a_bomb_on(next_place)
         return action
 
     def move_to(self, next_element):

@@ -243,6 +243,49 @@ class TestStrategy(TestCase):
         self.strategy.calculate_effort()
         self.assertEquals(self.strategy.board.elements[6][1].move_effort, 35)
 
+    def test_issue(self):
+        self.strategy.player_character = Element.PLAYER_D
+        self.strategy.create_board("X,X,X,X,X,X,X,X,X,X,X\n"
+                                   "X,_,_,_,_,#,_,C,_,_,X\n"
+                                   "X,_,_,_,#,#,#,_,_,_,X\n"
+                                   "X,L,L,L,_,#,_,_,_,L,X\n"
+                                   "X,_,L,_,_,_,_,_,_,L,X\n"
+                                   "X,_,_,_,_,_,_,B,_,_,X\n"
+                                   "X,_,_,_,_,_,L,_,_,_,X\n"
+                                   "X,_,A,2,D,_,L,_,_,_,X\n"
+                                   "X,_,_,_,_,_,L,L,_,_,X\n"
+                                   "X,_,_,_,L,_,L,L,_,_,X\n"
+                                   "X,X,X,X,X,X,X,X,X,X,X")
+        self.strategy.locate_elements()
+        self.strategy.calculate_bomb_ranges()
+        self.strategy.create_board("X,X,X,X,X,X,X,X,X,X,X\n"
+                                   "X,_,_,_,_,#,_,C,_,_,X\n"
+                                   "X,_,_,_,#,#,#,_,_,_,X\n"
+                                   "X,L,L,L,_,#,_,_,_,L,X\n"
+                                   "X,_,L,_,_,_,_,_,_,L,X\n"
+                                   "X,_,_,_,_,_,_,B,_,_,X\n"
+                                   "X,_,2,_,2,_,L,_,_,_,X\n"
+                                   "X,_,A,1,D,_,L,_,_,_,X\n"
+                                   "X,_,_,_,_,_,L,L,_,_,X\n"
+                                   "X,_,_,_,L,_,L,L,_,_,X\n"
+                                   "X,X,X,X,X,X,X,X,X,X,X")
+        self.strategy.locate_elements()
+        self.strategy.update_rules_information()
+        self.strategy.rules.players_bomb_magnitude = \
+            {
+                Element.PLAYER_A: 2,
+                Element.PLAYER_B: 1,
+                Element.PLAYER_C: 1,
+                Element.PLAYER_D: 3
+            }
+        self.strategy.calculate_bomb_ranges()
+        self.strategy.calculate_effort()
+        self.strategy.calculate_action()
+        print self.strategy.board.elements[8][4]
+        print self.strategy.board.elements[7][4]
+        print self.strategy.board.elements[6][4]
+        print self.strategy.board
+
     def test_calculate_action(self):
         self.strategy.rules.players_bomb_magnitude = \
             {
@@ -375,25 +418,75 @@ class TestStrategy(TestCase):
         self.controller.expectAndReturn(self.strategy.random.random(), 0.7)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.9)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.1)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.3)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.5)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.7)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.9)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.1)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.3)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.5)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.7)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.9)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.1)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.3)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.5)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.7)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.9)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.1)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.3)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.5)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.7)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.expectAndReturn(self.strategy.random.random(), 0.9)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
+        self.controller.expectAndReturn(self.strategy.random.random(), 0.0)
         self.controller.replay()
 
         self.strategy.create_board("X,X,X,X,X,X,X,X,X,X,X\n"

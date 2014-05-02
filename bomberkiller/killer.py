@@ -43,7 +43,6 @@ class Killer(object):
 
         while self.playing:
             message = self.connection.read_message()
-            print message
 
             if message[0] == Turn.START:
                 map_ = message[1]
